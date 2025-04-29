@@ -1,25 +1,36 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Wigs_Salon.DAL.Models;
+using Wigs_Salon.DAL.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// הוספת שירותים לקונטיינר ה-DI (Dependency Injection)
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
+// הזרקת שירותי ה-DAL
+builder.Services.AddScoped<CustomerDal>();
+builder.Services.AddScoped<EmployeeDal>();
+builder.Services.AddScoped<AppointmentDal>();
+builder.Services.AddScoped<ServiceDal>();
+
+// קישור למסד נתונים
+builder.Services.AddDbContext<DB_Manager>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// קונפיגורציה של API
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// הקונפיגורציה של האפליקציה
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 
+// שגרה של הקונטרולרים
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
