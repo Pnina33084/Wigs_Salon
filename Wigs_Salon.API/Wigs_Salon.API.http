@@ -1,0 +1,6 @@
+@Wigs_Salon.API_HostAddress = http://localhost:5112
+
+GET {{Wigs_Salon.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
