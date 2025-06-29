@@ -31,7 +31,17 @@ namespace Wigs_Salon.BL.Services
 
         public void Add(AppointmentModel model)
         {
-            _dal.AddAppointment(MapToEntity(model));
+            var entity = MapToEntity(model);
+            _dal.AddAppointment(entity);
+
+            // לאחר שמוסיפים תור - מקשרים אליו שירותים (אם יש)
+            if (model.ServiceIds is not null && model.ServiceIds.Any())
+            {
+                foreach (var serviceId in model.ServiceIds)
+                {
+                    _dal.AddServiceToAppointment(entity.AppointmentId, serviceId);
+                }
+            }
         }
 
         public void Update(AppointmentModel model)
@@ -52,6 +62,7 @@ namespace Wigs_Salon.BL.Services
             AppointmentDate = m.AppointmentDate,
             AppointmentTime = m.AppointmentTime,
             CancellationFee = m.CancellationFee ?? 0
+            // לא ממפה את השירותים כאן - עושים זאת בנפרד
         };
 
         private AppointmentModel MapToModel(Appointment e) => new()
@@ -61,7 +72,8 @@ namespace Wigs_Salon.BL.Services
             EmployeeId = e.EmployeeId,
             AppointmentDate = e.AppointmentDate,
             AppointmentTime = e.AppointmentTime,
-            CancellationFee = e.CancellationFee
+            CancellationFee = e.CancellationFee,
+            ServiceIds = e.Services.Select(s => s.ServiceId).ToList()
         };
     }
 }
